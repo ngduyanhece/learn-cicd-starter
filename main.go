@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time" // Add for setting the timeout
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
@@ -71,8 +72,10 @@ func main() {
 			return
 		}
 		defer f.Close()
-		if _, err := io.Copy(w, f); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+
+		if _, err := io.Copy(w, f); err != nil { // Handle the error properly
+			http.Error(w, "failed to write response", http.StatusInternalServerError)
+			log.Printf("failed to write response: %v", err)
 		}
 	})
 
@@ -88,9 +91,12 @@ func main() {
 	v1Router.Get("/healthz", handlerReadiness)
 
 	router.Mount("/v1", v1Router)
+
+	// Add ReadHeaderTimeout to mitigate potential Slowloris attack
 	srv := &http.Server{
-		Addr:    ":" + port,
-		Handler: router,
+		Addr:              ":" + port,
+		Handler:           router,
+		ReadHeaderTimeout: 5 * time.Second, // Set a reasonable timeout
 	}
 
 	log.Printf("Serving on port: %s\n", port)
