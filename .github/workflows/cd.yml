@@ -21,16 +21,17 @@ jobs:
       - name: Build the app
         run: ./scripts/buildprod.sh
 
-      # Set up Google Cloud CLI
-      - name: authenticate with Google Cloud
-        uses: 'google-github-actions/auth@v2'
+      # Authenticate with Google Cloud
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
         with:
-          project_id: 'notely-439703'  # Replace with your GCP project ID
-          service_account: ${{ secrets.GCP_CREDENTIALS }}  # Add this secret to your GitHub repository
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v2'
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}  # Ensure this secret contains the full JSON content
+
+      # Set up Google Cloud SDK
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
         with:
-         version: '>= 363.0.0'
+          version: '>= 363.0.0'
 
       # Build and push Docker image to Google Artifact Registry
       - name: Build and Push Docker Image
