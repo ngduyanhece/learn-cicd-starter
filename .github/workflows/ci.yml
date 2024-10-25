@@ -21,7 +21,7 @@ jobs:
       - name: Run Tests with Coverage
         run: go test -cover ./...
 
-  style:
+  style-check:
     name: Style
     runs-on: ubuntu-latest
 
@@ -36,8 +36,8 @@ jobs:
 
       - name: Run gofmt to check formatting
         run: |
-          # Find files that aren't formatted
-          unformatted=$(gofmt -l .)
+          # Find files that aren't formatted, excluding the vendor directory
+          unformatted=$(find . -name '*.go' ! -path './vendor/**' -exec gofmt -l {} +)
           if [ -n "$unformatted" ]; then
             echo "The following files are not properly formatted:"
             echo "$unformatted"
